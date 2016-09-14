@@ -22,10 +22,10 @@ module register_bank (
 
    //MEM
    input logic [WORD-1:0] mem_in,
-   input logic [MEM-1:0] MEM,
+   input logic [MEM-1:0] mem_control,
    output logic [NBITS-1:0] mem_addr,
    output logic [WORD-1:0] mem_out,
-   output logic [MEM-2:0] write_enb);
+   output logic write_enb);
 
    logic [NBITS-1:0] mar, mdr, pc, mbr, sp, lv, cpp, tos, opc, h;
 
@@ -34,11 +34,11 @@ module register_bank (
    
    always_comb begin
       for (int i = 0; i < B; i++)
-         enable_b_ <= enable_b;
+         enable_b_[i] <= enable_b;
 
-	   fetch <= MEM[0];
-	   rd <= MEM[1];
-	   wr <= MEM[2];
+	   fetch <= mem_control[0];
+	   rd <= mem_control[1];
+	   wr <= mem_control[2];
    end
 
    always_ff@(posedge clk) begin
@@ -62,9 +62,9 @@ module register_bank (
             mar <= mar;
 
          //MDR
-         if (write_c[WRITE_C-8] & ~rd)
+         if (write_c[C-8] & ~rd)
             mdr <= c_bus;
-         else if (~write_c[WRITE_C-8] & rd) begin
+         else if (~write_c[C-8] & rd) begin
             case(mar[1:0])
                default: mdr[7:0] <= mem_in;
                1:       mdr[15:8] <= mem_in;
@@ -76,49 +76,49 @@ module register_bank (
             mdr <= mdr;
 
          //PC
-         if (write_c[WRITE_C-7])
+         if (write_c[C-7])
             pc <= c_bus;
          else
             pc <= pc;
 
          //MBR -- Todo: FALTA SIGNED E UNSIGNED
          if (fetch)
-            mbr[WORD-1:0] <= mem_in;
+            mbr[7:0] <= mem_in;
          else
             mbr <= mbr;
 
          //SP
-         if (write_c[WRITE_C-6])
+         if (write_c[C-6])
             sp <= c_bus;
          else
             sp <= sp;
 
          //LV
-         if (write_c[WRITE_C-5])
+         if (write_c[C-5])
             lv <= c_bus;
          else
             lv <= lv;
 
          //CPP
-         if (write_c[WRITE_C-4])
+         if (write_c[C-4])
             cpp <= c_bus;
          else
             cpp <= cpp;
 
          //TOS
-         if (write_c[WRITE_C-3])
+         if (write_c[C-3])
             tos <= c_bus;
          else
             tos <= tos;
 
          //OPC
-         if (write_c[WRITE_C-2])
+         if (write_c[C-2])
             opc <= c_bus;
          else
             opc <= opc;
 
          //H
-         if (write_c[WRITE_C-1])
+         if (write_c[C-1])
             h <= c_bus;
          else
             h <= h;

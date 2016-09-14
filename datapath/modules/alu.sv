@@ -53,7 +53,7 @@ module alu (
                                  MINUS1=6'h12} control;  //ALU mnemonic for operations
 
    always_comb
-	   for (int i = 0; i <= ALU_CONTROL; i++)
+	   for (int i = 0; i < ALU_CONTROL; i++)
 	      control[i] <= alu_control;
 
    always_comb begin

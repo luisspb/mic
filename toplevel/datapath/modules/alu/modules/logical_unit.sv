@@ -1,6 +1,6 @@
 //Logical Unit, submodule of ALU
 
-`include "definitions.svh"
+`include "../../../../shared/definitions.svh"
 
 module logical_unit (
    input logic [NBITS-1:0] a, b,

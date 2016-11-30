@@ -1,6 +1,6 @@
 //Full Adder, submodule of ALU
 
-`include "definitions.svh"
+`include "../../../../shared/definitions.svh"
 
 module full_adder (
    input logic enable,

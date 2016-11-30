@@ -1,6 +1,6 @@
 //Instantiator for ALU submodules
 
-`include "definitions.svh"
+`include "../../../../shared/definitions.svh"
 
 module alu_modules (
    input logic [0:1] f,

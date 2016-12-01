@@ -1,10 +1,7 @@
 //alu.sv
 //Arithmetic Logic Unit
-//Alunos: Jorgeluis Guerra
-//        Marcelo Aguiar
-//		  Pedro Cleis
 
-//ALU operations
+//Selection of 16 from the 64 ALU operations
 
 //ALU Control             Function
 //01.1000 0x18            A
@@ -24,63 +21,41 @@
 //01.0001 0x11            1
 //01.0010 0x12            -1
 
-`timescale 1ns/10ps
-`include "definitions.svh"	
+`include "../../../shared/definitions.svh"
 
 module alu (
-   input logic [NBITS-1:0] a,
-   input logic [NBITS-1:0] b_bus,
-   input logic [ALU_CONTROL-1:0] alu_control,
-   output logic n,
-   output logic z,
+   input logic [NBITS-1:0] a, b,
+   input logic [ALU_CONTROL-1:0] ctrl,
+   output logic n, z,
    output logic [NBITS-1:0] c);
 
-   enum logic [ALU_CONTROL-1:0] {A=6'h18,
-                                 B=6'h14,
-                                 NOTA=6'h1A,
-                                 NOTB=6'h2C,
-                                 APLUSB=6'h3C,
-                                 APLUSB1=6'h3D,
-                                 APLUS1=6'h39,
-                                 BPLUS1=6'h35,
-                                 BMINUSA=6'h3F,
-                                 BMINUS1=6'h37,
-                                 MINUSA=6'h3B,
-                                 AANDB=6'h0C,
-                                 AORB=6'h1C,
-                                 ZERO=6'h10,
-                                 ONE=6'h11,
-                                 MINUS1=6'h12} control;  //ALU mnemonic for operations
-
-   always_comb
-	   for (int i = 0; i < ALU_CONTROL; i++)
-	      control[i] <= alu_control;
+   logic [1:0] f;
+   logic ena, enb, inva, inc;
 
    always_comb begin
-      case(control)
-         default: c <= a;
-         A:       c <= a;
-         B:       c <= b_bus;
-         NOTA:    c <= ~a;
-         NOTB:    c <= ~b_bus;
-         APLUSB:  c <= a + b_bus;
-         APLUSB1: c <= a + b_bus + 1;
-         APLUS1:  c <= a + 1;
-         BPLUS1:  c <= b_bus + 1;
-         BMINUSA: c <= b_bus - a;
-         BMINUS1: c <= b_bus - 1;
-         MINUSA:  c <= -a;
-         AANDB:   c <= a & b_bus;
-         AORB:    c <= a | b_bus;
-         ZERO:    c <= 0;
-         ONE:     c <= 1;
-         MINUS1:  c <= -1;
-      endcase
-
-      z <= !c;
-
-      n <= c[NBITS-1];
-
+      f <= ctrl[5:4];
+      ena <= ctrl[3];
+      enb <= ctrl[2];
+      inva <= ctrl[1];
+      inc <= ctrl[0];
    end
+
+   logic [NBITS-1:0] a_bus, b_bus, y_lu, y_fa;
+   logic [3:0] y_dec;
+
+   always_comb begin
+      if (inva)
+         a_bus <= ~(ena & a);
+      else
+         a_bus <= ena & a;
+      b_bus <= enb & b;
+   end
+
+   always_comb
+      c <= y_lu | y_fa;
+
+   decoder decoder_i (.f(f), .y(y_dec));
+   logical_unit lu_i (.a(a_bus), .b(b_bus), .ctrl(y_dec[2:0]), .y(y_lu));
+   full_adder fa_i (.enable(y_dec[3]), .c_in(inc), .a(a_bus), .b(b_bus), .y(y_fa), .c_out());
 
 endmodule

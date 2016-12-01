@@ -62,7 +62,6 @@ set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name SMART_RECOMPILE ON
 set_global_assignment -name SEARCH_PATH ../../../../shared
 set_global_assignment -name SOURCE_FILE ../../../../shared/definitions.svh
-set_global_assignment -name SYSTEMVERILOG_FILE tb.sv
 set_global_assignment -name SYSTEMVERILOG_FILE logical_unit.sv
 set_global_assignment -name SYSTEMVERILOG_FILE full_adder.sv
 set_global_assignment -name SYSTEMVERILOG_FILE decoder.sv

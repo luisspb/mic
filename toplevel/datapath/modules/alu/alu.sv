@@ -13,7 +13,7 @@
 //11.1001 0x39            A + 1
 //11.0101 0x35            B + 1
 //11.1111 0x3F            B - A
-//11.0111 0x37            B - 1
+//11.0110 0x36            B - 1
 //11.1011 0x3B            -A
 //00.1100 0x0C            A AND B
 //01.1100 0x1C            A OR B
@@ -43,16 +43,32 @@ module alu (
    logic [NBITS-1:0] a_bus, b_bus, y_lu, y_fa;
    logic [3:0] y_dec;
 
-   always_comb begin
+   always_comb
       if (inva)
-         a_bus <= ~(ena & a);
+         if (ena)
+            a_bus <= ~a;
+         else
+            a_bus <= ~('h0);
       else
-         a_bus <= ena & a;
-      b_bus <= enb & b;
-   end
+         if (ena)
+            a_bus <= a;
+         else
+            a_bus <= 'h0;
+   always_comb
+      if (enb)
+         b_bus <= b;
+      else
+         b_bus <= 'h0;
 
    always_comb
       c <= y_lu | y_fa;
+   always_comb begin
+      n <= c[NBITS-1];
+      if (c)
+         z <= 1'b0;
+      else
+         z <= 1'b1;
+   end
 
    decoder decoder_i (.f(f), .y(y_dec));
    logical_unit lu_i (.a(a_bus), .b(b_bus), .ctrl(y_dec[2:0]), .y(y_lu));

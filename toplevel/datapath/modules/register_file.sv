@@ -1,22 +1,16 @@
 //register_bank.sv
 //10 Registers Bank
-//Alunos: Jorgeluis Guerra
-//        Marcelo Aguiar
-//		  Pedro Cleis
 
-`timescale 1ns/10ps
-`include "definitions.svh"
+`include "../../shared/definitions.svh"
 
-module register_bank (
+module register_file (
 
    //CLK and RESET
-   input logic clk,
-   input logic reset,
+   input logic clk, reset,
 
    //BUSES
    input logic [NBITS-1:0] c_bus,
    output logic [NBITS-1:0] b_bus,
-   output logic [NBITS-1:0] a,
    input logic [B-1:0] enable_b,
    input logic [C-1:0] write_c,
 
@@ -25,34 +19,42 @@ module register_bank (
    input logic [MEM-1:0] mem_control,
    output logic [NBITS-1:0] mem_addr,
    output logic [WORD-1:0] mem_out,
-   output logic write_enb);
+   output logic we);
 
    logic [NBITS-1:0] mar, mdr, pc, mbr, sp, lv, cpp, tos, opc, h;
-
-   enum logic [B-1:0] {OPC=4'h0, TOS=4'h1, CPP=4'h2, LV=4'h3, SP=4'h4, MBR=4'h5, PC=4'h6, MDR=4'h7} enable_b_;
    logic fetch, rd, wr;
-   
-   always_comb begin
-      for (int i = 0; i < B; i++)
-         enable_b_[i] <= enable_b;
 
+   // B = 4
+   localparam OPC = 4'h0;
+   localparam TOS = 4'h1;
+   localparam CPP = 4'h2;
+   localparam LV  = 4'h3;
+   localparam SP  = 4'h4;
+   localparam MBR = 4'h5;
+   localparam PC  = 4'h6;
+   localparam MDR = 4'h7;
+
+   // C = 9
+   //localparam
+
+   always_comb begin
 	   fetch <= mem_control[0];
-	   rd <= mem_control[1];
-	   wr <= mem_control[2];
+	   rd    <= mem_control[1];
+	   wr    <= mem_control[2];
    end
 
    always_ff@(posedge clk) begin
       if (reset) begin
-         mar <= 32'h00000000;
-         mdr <= 32'h00000000;
-         pc <= 32'h00000000;
-         mbr <= 32'h00000000;
-         sp <= 32'h00000000;
-         lv <= 32'h00000000;
-         cpp <= 32'h00000000;
-         tos <= 32'h00000000;
-         opc <= 32'h00000000;
-         h <= 32'h00000000;
+         mar <= 32'h0;
+         mdr <= 32'h0;
+         pc  <= 32'h0;
+         mbr <= 32'h0;
+         sp  <= 32'h0;
+         lv  <= 32'h0;
+         cpp <= 32'h0;
+         tos <= 32'h0;
+         opc <= 32'h0;
+         h   <= 32'h0;
       end
       else begin
          //MAR
@@ -66,11 +68,11 @@ module register_bank (
             mdr <= c_bus;
          else if (~write_c[C-8] & rd) begin
             case(mar[1:0])
-               default: mdr[7:0] <= mem_in;
-               1:       mdr[15:8] <= mem_in;
+               default: mdr[7:0]   <= mem_in;
+               1:       mdr[15:8]  <= mem_in;
                2:       mdr[23:16] <= mem_in;
                3:       mdr[31:24] <= mem_in;
-            endcase            
+            endcase
          end
          else
             mdr <= mdr;
@@ -125,30 +127,33 @@ module register_bank (
       end
    end
 
-   always_comb begin  //B BUS
-      case (enable_b)
-         default: b_bus <= opc;  //OPC
-         TOS: b_bus <= tos;
-         CPP: b_bus <= cpp;
-         LV:  b_bus <= lv;
-         SP:  b_bus <= sp;
-         MBR: b_bus <= mbr;
-         PC:  b_bus <= pc;
-         MDR: b_bus <= mdr;
-      endcase
+   always_ff@(negedge clk) begin  //B BUS
+      if (reset)
+         b_bus <= 'h0;
+      else
+         case (enable_b)
+            default: b_bus <= opc;  //OPC
+            TOS:     b_bus <= tos;
+            CPP:     b_bus <= cpp;
+            LV:      b_bus <= lv;
+            SP:      b_bus <= sp;
+            MBR:     b_bus <= mbr;
+            PC:      b_bus <= pc;
+            MDR:     b_bus <= mdr;
+         endcase
    end
 
    always_comb begin
       if (rd ^ wr) begin
          mem_addr <= {2'b00, mar[NBITS-1:2]};
          if (wr)
-            write_enb <= 1;
+            we <= 1;
          else
-			write_enb <= 0;
+			we <= 0;
       end
       else begin
          mem_addr <= pc;
-         write_enb <= 0;
+         we <= 0;
       end
    end
 

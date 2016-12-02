@@ -1,8 +1,5 @@
 //shifter.sv
 //Shifter
-//Alunos: Jorgeluis Guerra
-//        Marcelo Aguiar
-//		  Pedro Cleis
 
 //Shifter Control signal
 
@@ -10,29 +7,24 @@
 //0b10       SLL8 (Shift Left Logical - 8 bits)
 //0b01       SRA1 (Shift Right Arithmetic - 1 bit)
 
-`timescale 1ns/10ps
-`include "definitions.svh"
+`include "../../shared/definitions.svh"
 
 module shifter (
-   input logic [NBITS-1:0] c,
-   input logic [S_CONTROL-1:0] s_control,
-   output logic [NBITS-1:0] c_bus);
+   input logic signed [NBITS-1:0] y,
+   input logic [S_CONTROL-1:0] ctrl,
+   output logic signed [NBITS-1:0] c);
 
-   enum logic [S_CONTROL-1:0] {SLL8=2'b10, SRA1=2'b01} s_control_;
-   
-   always_comb
-      for (int i = 0; i < S_CONTROL; i++)
-         s_control_[i] <= s_control;
+   localparam SLL8 = 2'b10;
+   localparam SRA1 = 2'b01;
 
    always_comb begin
-      case (s_control)
+      unique case (ctrl)
          default:
-            c_bus <= c;
+            c <= y;
          SLL8:
-            c_bus <= c << 8;
+            c <= y << 8;
          SRA1:
-            c_bus <= c >>> 1;
+            c <= y >>> 1;
       endcase
    end
-
 endmodule

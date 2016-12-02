@@ -27,7 +27,7 @@ module alu (
    input logic [NBITS-1:0] a, b,
    input logic [ALU_CONTROL-1:0] ctrl,
    output logic n, z,
-   output logic [NBITS-1:0] c);
+   output logic [NBITS-1:0] y);
 
    logic [1:0] f;
    logic ena, enb, inva, inc;
@@ -61,10 +61,10 @@ module alu (
          b_bus <= 'h0;
 
    always_comb
-      c <= y_lu | y_fa;
+      y <= y_lu | y_fa;
    always_comb begin
-      n <= c[NBITS-1];
-      if (c)
+      n <= y[NBITS-1];
+      if (y)
          z <= 1'b0;
       else
          z <= 1'b1;

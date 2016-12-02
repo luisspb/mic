@@ -5,7 +5,7 @@ module tb();
 
    logic [NBITS-1:0] a, b;
    logic n, z;
-   logic [NBITS-1:0] c;
+   logic [NBITS-1:0] y;
 
    enum logic [ALU_CONTROL-1:0] {
       A         = 'h18,
@@ -25,7 +25,7 @@ module tb();
       ONE       = 'h31,
       MINUSONE  = 'h32} ctrl;
 
-   alu alu_i (.a(a), .b(b), .ctrl(ctrl), .n(n), .z(z), .c(c));
+   alu alu_i (.a(a), .b(b), .ctrl(ctrl), .n(n), .z(z), .y(y));
 
    initial begin
       #1ns;
@@ -87,7 +87,6 @@ module tb();
    initial begin
      $dumpfile ("waves.vcd");
      $dumpvars (1, tb);
-     $dumpvars (1, tb.alu_i);
    end
 
 endmodule

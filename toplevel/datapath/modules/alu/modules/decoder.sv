@@ -4,10 +4,10 @@ module decoder (
    input logic [0:1] f,
    output logic [3:0] y);
 
-   parameter AND  = 4'b0001;
-   parameter OR   = 4'b0010;
-   parameter NOTB = 4'b0100;
-   parameter SUM  = 4'b1000;
+   localparam AND  = 4'b0001;
+   localparam OR   = 4'b0010;
+   localparam NOTB = 4'b0100;
+   localparam SUM  = 4'b1000;
 
    always_comb
       case (f)

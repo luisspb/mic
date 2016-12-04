@@ -1,30 +1,25 @@
 //datapath.sv
 //Datapath
-//Alunos: Jorgeluis Guerra
-//        Marcelo Aguiar
-//        Pedro Cleis
 
+`include "../shared/definitions.svh"
 
-`timescale 1ns/10ps
-`include "./modules/definitions.svh"
-
-module datapath(
+module datapath (
    input logic clk,
    input logic reset,
-   input logic [ALU+C+MEM+B-1:0] microinst,
+   input logic [DP_CTRL-1:0] microinst,
    output logic n,
    output logic z,
    //MEM
-   input logic [WORD-1:0] mem_in,
+   input logic [BYTE-1:0] mem_in,
    output logic [NBITS-1:0] mem_addr,
-   output logic [WORD-1:0] mem_out,
-   output logic write_enb);
+   output logic [BYTE-1:0] mem_out,
+   output logic we);
 
    logic [NBITS-1:0] b_bus, c_bus;
-   logic [NBITS-1:0] a, c;
 
-   register_bank rb1(.*, .write_c(microinst[15:7]), .mem_control(microinst[6:4]), .enable_b(microinst[3:0]));
-   alu alu1(.*, .alu_control(microinst[21:16]));
-   shifter shifter1(.*, .s_control(microinst[23:22]))
+   alu alu_i (a, b, ctrl, n, z, y);
+   shifter shifter_i (.y, ctrl, c);
+   register_file rf_i (.clk, reset, .c_bus, .b_bus, .enable_b, .write_c, .mem_control, .mem_in,
+                       .mem_addr, .mem_out,  .we);
 
 endmodule

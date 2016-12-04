@@ -9,7 +9,7 @@ module tb();
    logic [B-1:0] enable_b;
    logic [C-1:0] write_c;
    //MEM
-   logic [WORD-1:0] from_mem, for_mem;
+   logic [NBITS-1:0] from_mem, for_mem;
    logic [MEM-1:0] mem_control;
    logic [NBITS-1:0] mem_addr;
    logic we;
@@ -64,5 +64,4 @@ module tb();
      $dumpfile ("waves.vcd");
      $dumpvars (1, tb);
    end
-
 endmodule

@@ -1,22 +1,22 @@
 `include "definitions.svh"
 
-module ram
-	#(parameter BYTE = WORD,
-		         BYTES = 4,
-			      WIDTH = NBITS) (
-	input logic [WIDTH-1:0] addr,
-	input logic [BYTE-1:0] data,
-	input logic we, clk,
-	output logic [BYTE-1:0] q);
+interface ram_bus ();
+	logic we;
+	logic [BYTE-1:0] data, q;
+	logic [NBITS-1:0] addr;
 
-	localparam WORDS = 1 << WIDTH;
+	modport slave (input we, data, addr, output q);
+	modport master (input q, output we, data, addr);
+endinterface
 
-	// use a multi-dimensional packed array to model individual bytes within the word
-	logic [BYTES-1:0][BYTE-1:0] ram [0:WORDS-1];
+module ram (input logic clk, ram_bus.slave bus);
+
+	// Single-port Write, Dual-port Read Memory
+	logic [BYTE-1:0] mem [0:WORDS-1];
 
 	always_ff @ (posedge clk) begin
-		if(we)
-			ram[addr] <= data;
-		q <= ram[addr];
+		if(bus.we)
+			mem[bus.addr] <= bus.data;
+		bus.q <= mem[bus.addr];
 	end
 endmodule
